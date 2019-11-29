@@ -1,0 +1,16 @@
+* Wiring
+  
+  | Arduino | OLED   | Description     |
+  |---------+--------+-----------------|
+  | GND     | 1      | GND             |
+  | 5V      | 2      | VDD, 5 V        |
+  | A4      | 8 (D1) | SDA             |
+  | A4      | 9 (D2) | SDA             |
+  | A5      | 7 (D0) | SCL             |
+
+  - NOTE: J0, J1, J2 on the PCB (20x4 character H02004), correspond to the
+    BS (Bus Select) pins, so must be moved to get I2C going.
+    (Move J2 so it is connected to ground)
+    
+  - RS pin on PCB is D/C# on controller
+

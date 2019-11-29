@@ -1,0 +1,66 @@
+ 
+Lines are like 
+
+
+    aaa
+   f   b
+   f   b
+   f   b
+    ggg
+   e   c
+   e   c
+   e   c
+    ddd
+    
+Bit strings: abcdefg, 1 = on
+
+| Char | Bitstring |
+|------+-----------|
+| 0    |   1111110 |
+| 1    |   0110000 |
+| 2    |   1101101 |
+| 3    |   1111001 |
+| 4    |   0110011 |
+| 5    |   1011011 |
+| 6    |   1011111 |
+| 7    |   1110000 |
+| 8    |   1111111 |
+| 9    |   1110011 |
+| A    |   1110111 |
+| b    |   0011111 |
+| c    |   0001101 |
+| C    |   1001110 |
+| d    |   0111101 |
+| E    |   1001111 |
+| F    |   1000111 |
+| G    |   1011110 |
+| H    |   0110111 |
+| h    |   0010111 |
+| I    |   0000110 |
+| J    |   0111100 |
+| K    |   0100111 |
+| L    |   0001110 |
+| m    |   0010100 |
+| n    |   0010101 |
+| O    |   1111110 |
+| o    |   0011101 |
+| P    |   1100111 |
+| q    |   1110011 |
+| r    |   0000101 |
+| S    |   1011011 |
+| T    |   1000110 |
+| u    |   0011100 |
+| v    |   0111110 |
+| w    |   0010100 |
+| x    |   0100101 |
+| y    |   0111011 |
+| Z    |   1101101 |
+
+
+This will probably work, but I was tired at the time....
+There is possibly more scope for using the fact that it's not actually a 7 segment display, but oh well.
+Inspiration from 
+http://learningaboutelectronics.com/Articles/How-to-display-any-character-on-a-7-segment-LED-display.php
+but this list is vastly better.
+
+Note S/5, Z/2 double ups. Nothing else doubles up? uvw, nm quite indistinguishable though
