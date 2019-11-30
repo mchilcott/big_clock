@@ -280,10 +280,10 @@ private:
 };
 
 
-class Clock: public Window
+class UndisciplinedClock: public Window
 {
 public:
-  Clock ():
+  UndisciplinedClock ():
     mEditState(k_none),
     mLast(millis()),
     year(2019),
@@ -533,6 +533,214 @@ private:
     
   }
   
+};
+
+
+#include "RTClib.h"
+
+extern RTC_DS1307 rtc;
+
+class RTCClock: public Window
+{
+public:
+  RTCClock ():
+    mEditState(k_none),
+    mLast(millis()),
+    mNow(F(__DATE__), F(__TIME__))
+  {}
+
+
+  virtual void up ()
+  {
+    switch(mEditState)
+      {
+      case k_day:
+        mNow = mNow + TimeSpan(1,0,0,0); break;
+
+      case k_month:
+        mNow = mNow + TimeSpan(30,0,0,0); break;
+
+      case k_year:
+        mNow = mNow + TimeSpan(365,0,0,0); break;
+
+      case k_hr:
+        mNow = mNow + TimeSpan(0,1,0,0);; break;
+
+      case k_min:
+        mNow = mNow + TimeSpan(0,0,1,0); break;
+
+      case k_sec:
+       mNow = mNow + TimeSpan(0,0,0,1); break;                   
+                  
+      default:
+      case k_none:
+        break;
+      }
+      save_state();
+  }
+
+  
+  virtual void down ()
+  {
+    switch(mEditState)
+      {
+      case k_day:
+        mNow = mNow - TimeSpan(1,0,0,0); break;
+
+      case k_month:
+        mNow = mNow - TimeSpan(30,0,0,0); break;
+
+      case k_year:
+        mNow = mNow - TimeSpan(365,0,0,0); break;
+
+      case k_hr:
+        mNow = mNow - TimeSpan(0,1,0,0);; break;
+
+      case k_min:
+        mNow = mNow - TimeSpan(0,0,1,0); break;
+
+      case k_sec:
+       mNow = mNow - TimeSpan(0,0,0,1); break;                   
+                  
+      default:
+      case k_none:
+        break;
+      }
+      save_state();
+  }
+
+  
+  virtual void back ()
+  {
+    if(parent)
+      mgr->load(parent);
+  }
+
+  
+  virtual void enter ()
+  {
+    switch(mEditState)
+      {
+      case k_day:
+        mEditState = k_month; break;
+
+      case k_month:
+        mEditState = k_year; break;
+
+      case k_year:
+        mEditState = k_hr; break;
+
+      case k_hr:
+        mEditState = k_min; break;
+
+      case k_min:
+        mEditState = k_sec; break;
+
+      case k_sec:
+        // Write data to the RTC
+        mEditState = k_none; break;      
+                  
+      default:
+      case k_none:
+        mEditState = k_day; break;
+      }
+    mNeedsClear = true;
+  }
+
+  // Draw the window
+  virtual void draw(OLED * disp)
+  {
+    if(mNeedsClear)
+    {
+      disp->clear();
+      mNeedsClear = false;
+    }
+    
+    if(millis() - mLast > 1000)
+      {
+        mLast = millis();
+        load_state();
+      }
+    
+    
+    // Draw time
+    char buf [20];
+    sprintf(buf, "%4d-%02d-%02d  ", mNow.year(), mNow.month(), mNow.day());
+    disp->set_point(1,3);
+    disp->write(buf);
+
+    sprintf(buf, "%2d:%02d:%02d  ", mNow.hour(), mNow.minute(), mNow.second());
+    disp->set_point(2,6);
+    disp->write(buf);
+    
+    CRGB Colour = {0x00,0x1F,0};
+    
+    sprintf(buf, "%02d%02d%02d", mNow.hour(), mNow.minute(), mNow.second());
+    
+    set_segment_display(leds, kDigitStart[0], get_rep(buf[0]), Colour);
+    set_segment_display(leds, kDigitStart[1], get_rep(buf[1]), Colour);
+    set_segment_display(leds, kDigitStart[2], get_rep(buf[2]), Colour);
+    set_segment_display(leds, kDigitStart[3], get_rep(buf[3]), Colour);
+    set_segment_display(leds, kDigitStart[4], get_rep(buf[4]), Colour);
+    set_segment_display(leds, kDigitStart[5], get_rep(buf[5]), Colour);
+    
+    if(mNow.second()%2){
+        set_colon(leds,kDigitStart[1],{0x00,0x1F,0});
+        set_colon(leds,kDigitStart[3],{0x00,0x1F,0});
+    } else {
+        set_colon(leds,kDigitStart[1],{0x00,0x0F,0x0F});
+        set_colon(leds,kDigitStart[3],{0x00,0x0F,0x0F});
+    }
+    
+    FastLED.show();
+
+    // Draw highlight
+    switch(mEditState)
+      {
+      case k_day:
+        disp->set_point(0,11); disp->write("\x1B\x1B"); break;
+        
+      case k_month:
+        disp->set_point(0,8); disp->write("\x1B\x1B"); break;
+        
+      case k_year:
+        disp->set_point(0,3); disp->write("\x1B\x1B\x1B\x1B"); break;
+        
+      case k_hr:
+        disp->set_point(3,6); disp->write("\x1A\x1A"); break;
+        
+      case k_min:
+        disp->set_point(3,9); disp->write("\x1A\x1A"); break;
+
+      case k_sec:
+        disp->set_point(3,12); disp->write("\x1A\x1A"); break;
+        
+      default:
+      case k_none:
+        break;
+      }
+      
+  }
+  
+  
+private:
+  typedef enum {k_none, k_day, k_month, k_year, k_hr, k_min, k_sec} edit_t;
+
+  edit_t mEditState;
+
+  DateTime mNow;
+  unsigned long mLast = 0;
+
+  bool mNeedsClear = false;
+  
+  void load_state(){
+    mNow =  rtc.now();
+  }
+  
+  void save_state(){
+    rtc.adjust(mNow);
+  }
+
 };
 
 

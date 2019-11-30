@@ -7,6 +7,9 @@
 
 #include "ClockFace.h"
 #include "FastLED.h"
+#include "RTClib.h"
+
+RTC_DS1307 rtc;
 
 
 // Define the array of leds
@@ -17,7 +20,7 @@ OLED display;
 
 WindowManager mgr (&display);
 
-Clock clk;
+RTCClock clk;
 ClockTimer tmr;
 CountUp stpw;
 
@@ -47,6 +50,19 @@ void setup ()
 {
   display.init();
   Serial.begin(9600);
+  
+  if (! rtc.begin()) {
+    display.set_point(0,0);
+    display.write("Couldn't find RTC");
+    while (1);
+  }
+  rtc.writeSqwPinMode(DS1307_SquareWave1HZ);
+  
+  if (! rtc.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    // following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
 
   // Button Stuff
   pinMode(BTN_UP, INPUT);
@@ -67,6 +83,8 @@ void setup ()
   main_menu.add(&tmr, "Timer");
   main_menu.add(&stpw, "Stopwatch");
   mgr.load(&main_menu);
+  
+
   
 }
 
