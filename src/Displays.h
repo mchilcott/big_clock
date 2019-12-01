@@ -656,11 +656,11 @@ public:
       mNeedsClear = false;
     }
     
-    if(millis() - mLast > 1000)
-      {
-        mLast = millis();
+    //if(millis() - mLast > 1000)
+    //  {
+    //    mLast = millis();
         load_state();
-      }
+    //  }
     
     
     // Draw time
@@ -751,8 +751,11 @@ public:
     mEditState(k_none),
     mLast(millis()),
     hr(0),
-    minu(15),
-    sec(00)
+    minu(12),
+    sec(00),
+    hr_start(0),
+    minu_start(0),
+    sec_start(0)
   {}
 
 
@@ -816,11 +819,13 @@ public:
         mEditState = k_sec; break;
 
       case k_sec:
+        hr_start = hr; minu_start = minu; sec_start = sec;          
         mEditState = k_run; break;
 
       case k_run:
         mEditState = k_none; break;
-                  
+      case k_done:
+        hr = hr_start; minu = minu_start; sec = sec_start;
       default:
       case k_none:
         mEditState = k_hr; break;
@@ -866,6 +871,19 @@ public:
         Colour.g = 0x00;
         Colour.b = 0x00;
       }
+      
+    if (mEditState == k_done)
+    {
+        if(sec % 2){
+            Colour.r = 0x40;
+            Colour.g = 0x00;
+            Colour.b = 0x00;
+        } else {
+            Colour.r = 0x10;
+            Colour.g = 0x00;
+            Colour.b = 0x10;
+        }
+    }
     
     sprintf(buf, "%02d%02d%02d", hr, minu, sec);
 
@@ -950,7 +968,15 @@ public:
               }
           }
         break;
-
+      case k_done:
+          // Over time
+           while(millis() - mLast > 1000)
+          {
+            mLast += 1000;
+            sec ++;
+            update_forward();
+          }
+        break;
       default:
         mLast = millis();
       }
@@ -963,6 +989,7 @@ private:
 
   state_t mEditState;
   unsigned char hr, minu, sec;
+  unsigned char hr_start, minu_start, sec_start;
 
   unsigned long mLast;
 

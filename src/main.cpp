@@ -82,10 +82,7 @@ void setup ()
   main_menu.add(&clk, "Clock");
   main_menu.add(&tmr, "Timer");
   main_menu.add(&stpw, "Stopwatch");
-  mgr.load(&main_menu);
-  
-
-  
+  mgr.load(&tmr);
 }
 
 void loop ()
