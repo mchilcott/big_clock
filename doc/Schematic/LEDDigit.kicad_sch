@@ -4,6 +4,12 @@
 
   (paper "A4")
 
+  (title_block
+    (title "KOALA Clock - Digit")
+    (company "M Chilcott")
+    (comment 1 "6 Identical Digits in Clock")
+  )
+
   (lib_symbols
     (symbol "LED:WS2812B" (pin_names (offset 0.254)) (in_bom yes) (on_board yes)
       (property "Reference" "D" (id 0) (at 5.08 5.715 0)
